@@ -90,6 +90,7 @@ function update_container() {
     esac
   else
     # Fallback to apt-get if nala is not installed
+    echo "Nala is not installed, falling back to apt-get"
     case "$os" in
       ubuntu | debian | devuan)
         pct exec "$container" -- bash -c "
