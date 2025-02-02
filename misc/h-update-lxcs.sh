@@ -92,6 +92,7 @@ function update_container() {
   nala_installed=$(pct exec "$container" -- which nala 2>/dev/null || true)
   if [[ -n "$nala_installed" ]]; then
     # Use nala if installed
+    echo "Using updated version with -y for nala"
     case "$os" in
       ubuntu | debian | devuan)
         pct exec "$container" -- bash -c "
