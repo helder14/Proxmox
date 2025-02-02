@@ -37,7 +37,7 @@ MSG_MAX_LENGTH=0
 
 # Fetch container list with error handling
 while read -r TAG ITEM; do
-  echo "DEBUG: Read TAG=$TAG, ITEM=$ITEM"  # Debugging output
+  # echo "DEBUG: Read TAG=$TAG, ITEM=$ITEM"  # Debugging output
   OFFSET=2
   ((${#ITEM} + OFFSET > MSG_MAX_LENGTH)) && MSG_MAX_LENGTH=${#ITEM}+OFFSET
   EXCLUDE_MENU+=("$TAG" "$ITEM " "OFF")
