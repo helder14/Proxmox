@@ -50,7 +50,7 @@ if [ ${#EXCLUDE_MENU[@]} -eq 0 ]; then
 fi
 
 excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Containers on $NODE" --checklist "\nSelect containers to skip from updates:\n" 16 $((MSG_MAX_LENGTH + 23)) 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
-
+# Update Containers
 function update_container() {
   container=$1
   header_info
@@ -72,19 +72,37 @@ function update_container() {
     return
   fi
 
-  case "$os" in
-  alpine) pct exec "$container" -- ash -c "apk update && apk upgrade" ;;
-  archlinux) pct exec "$container" -- bash -c "pacman -Syyu --noconfirm" ;;
-  fedora | rocky | centos | alma) pct exec "$container" -- bash -c "dnf -y update && dnf -y upgrade" ;;
-  ubuntu | debian | devuan)
-    pct exec "$container" -- bash -c "
-      nala update &&
-      nala upgrade &&
-      apt-get dist-upgrade -y &&
-      rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED"
-    ;;
-  opensuse) pct exec "$container" -- bash -c "zypper ref && zypper --non-interactive dup" ;;
-  esac
+  # Check if nala is installed
+  nala_installed=$(pct exec "$container" -- which nala 2>/dev/null || true)
+  if [[ -n "$nala_installed" ]]; then
+    # Use nala if installed
+    case "$os" in
+      ubuntu | debian | devuan)
+        pct exec "$container" -- bash -c "
+          nala update &&
+          nala upgrade &&
+          apt-get dist-upgrade -y &&
+          rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED"
+        ;;
+      *)
+        echo -e "${RD}[Error]${GN} Unsupported OS for nala update: ${BL}$os${CL}\n"
+        ;;
+    esac
+  else
+    # Fallback to apt-get if nala is not installed
+    case "$os" in
+      ubuntu | debian | devuan)
+        pct exec "$container" -- bash -c "
+          apt-get update &&
+          apt-get upgrade -y &&
+          apt-get dist-upgrade -y &&
+          rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED"
+        ;;
+      *)
+        echo -e "${RD}[Error]${GN} Unsupported OS for apt-get update: ${BL}$os${CL}\n"
+        ;;
+    esac
+  fi
 }
 
 containers_needing_reboot=()
