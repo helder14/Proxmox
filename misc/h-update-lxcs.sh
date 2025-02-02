@@ -96,7 +96,7 @@ function update_container() {
       ubuntu | debian | devuan)
         pct exec "$container" -- bash -c "
           nala update &&
-          nala upgrade &&
+          nala upgrade -y &&
           apt-get dist-upgrade -y &&
           rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED"
         ;;
