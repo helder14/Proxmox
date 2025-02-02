@@ -36,8 +36,21 @@ EXCLUDE_MENU=()
 MSG_MAX_LENGTH=0
 
 # Fetch container list with error handling
+container_count=$(pct list | awk 'NR>1 {print $1}' | wc -l)
+max_items=20
+
+# Adjust the number of items to display, but don't exceed max_items
+items_to_display=$(( container_count < max_items ? container_count : max_items ))
+
+# Dynamically set the window height based on the number of items
+height=$(( items_to_display + 4 ))  # Adding some padding for the window
+
+# Set the window width to be double the original (adjust as necessary)
+width=58
+
+# Fetch container list
+EXCLUDE_MENU=()
 while read -r TAG ITEM; do
-  # echo "DEBUG: Read TAG=$TAG, ITEM=$ITEM"  # Debugging output
   OFFSET=2
   ((${#ITEM} + OFFSET > MSG_MAX_LENGTH)) && MSG_MAX_LENGTH=${#ITEM}+OFFSET
   EXCLUDE_MENU+=("$TAG" "$ITEM " "OFF")
@@ -49,7 +62,10 @@ if [ ${#EXCLUDE_MENU[@]} -eq 0 ]; then
   exit 1
 fi
 
-excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Containers on $NODE" --checklist "\nSelect containers to skip from updates:\n" 25 $((MSG_MAX_LENGTH + 32)) 20 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
+# Use whiptail to display the list with adjusted window size
+excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE LXC Updater" \
+  --checklist "\nSelect containers to skip from updates:\n" $height $width 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
+
 # Update Containers
 function update_container() {
   container=$1
