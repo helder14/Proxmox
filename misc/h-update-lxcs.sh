@@ -64,7 +64,7 @@ fi
 
 # Use whiptail to display the list with adjusted window size
 excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE LXC Updater" \
-  --checklist "\nSelect containers to skip from updates:\n" $height $width 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
+  --checklist "\nSelect containers to skip from updates:\n" $height $width 20 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"') || exit
 
 # Update Containers
 function update_container() {
