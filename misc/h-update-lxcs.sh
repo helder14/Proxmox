@@ -92,7 +92,7 @@ function update_container() {
   nala_installed=$(pct exec "$container" -- which nala 2>/dev/null || true)
   if [[ -n "$nala_installed" ]]; then
     # Use nala if installed
-    echo "Nala is installed"
+    echo -e "${BL}[Info]${GN} Nala ${BL} is installed"
     case "$os" in
       ubuntu | debian | devuan)
         pct exec "$container" -- bash -c "
@@ -107,7 +107,7 @@ function update_container() {
     esac
   else
     # Fallback to apt-get if nala is not installed
-    echo "Nala is not installed, falling back to apt-get"
+    echo -e "${BL}[Info]${GN} Nala ${BL} is not installed ${CL} : ${YL} falling back to ${GN} apt-get"
     case "$os" in
       ubuntu | debian | devuan)
         pct exec "$container" -- bash -c "
